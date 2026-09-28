@@ -1,4 +1,4 @@
-package com.example.orderapi.domain;
+package com.example.orderapi.model;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

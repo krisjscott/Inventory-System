@@ -1,6 +1,6 @@
 package com.example.orderapi.repository;
 
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

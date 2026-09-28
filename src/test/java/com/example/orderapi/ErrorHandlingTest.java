@@ -16,7 +16,7 @@ class ErrorHandlingTest extends IntegrationTestSupport {
         mockMvc.perform(get("/api/products/{id}", 999_999L))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.error").value("Not Found"));
+                .andExpect(jsonPath("$.error").value("Resource not found"));
     }
 
     @Test

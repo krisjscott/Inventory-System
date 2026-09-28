@@ -1,6 +1,7 @@
 package com.example.orderapi.service;
 
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.exception.NegativeQuantityException;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.exception.InsufficientStockException;
 import com.example.orderapi.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,13 @@ public class InventoryService {
         if (available < quantity) {
             throw new InsufficientStockException(product.getSku(), available, quantity);
         }
-        product.setStockQuantity(available - quantity);
-        productRepository.save(product);
+        else {
+            if(quantity <= 0) {
+                throw new NegativeQuantityException("Quantity cannot be less than zero");
+            }
+            product.setStockQuantity(product.getStockQuantity() - quantity);
+            productRepository.save(product);
+        }
     }
 
     public void restock(Product product, int quantity) {

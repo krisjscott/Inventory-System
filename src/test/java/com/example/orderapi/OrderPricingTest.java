@@ -1,6 +1,6 @@
 package com.example.orderapi;
 
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,8 +1,6 @@
-package com.example.orderapi.web;
+package com.example.orderapi.exception;
 
 import com.example.orderapi.dto.ErrorResponse;
-import com.example.orderapi.exception.InsufficientStockException;
-import com.example.orderapi.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +34,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex,
+                                                              HttpServletRequest request) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", ex.getMessage());
+        body.put("path", request.getRequestURI());
+        body.put("status", HttpStatus.NOT_FOUND.value());
+        body.put("error", "Resource not found");
+        body.put("timestamp", Instant.now());
+
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException ex,
                                                          HttpServletRequest request) {
@@ -44,16 +55,9 @@ public class GlobalExceptionHandler {
                         "Request body is missing or malformed", request.getRequestURI()));
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex,
-                                                         HttpServletRequest request) {
-        ErrorResponse body = ErrorResponse.of(
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.ok(body);
+    @ExceptionHandler(NegativeQuantityException.class)
+    public ResponseEntity<String> negativeQuantity(Exception ex, HttpServletRequest request) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(InsufficientStockException.class)
@@ -70,4 +74,6 @@ public class GlobalExceptionHandler {
                 ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error",
                         ex.getMessage(), request.getRequestURI()));
     }
+
+
 }

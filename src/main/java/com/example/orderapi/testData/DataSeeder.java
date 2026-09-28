@@ -1,10 +1,10 @@
-package com.example.orderapi.bootstrap;
+package com.example.orderapi.testData;
 
-import com.example.orderapi.domain.Customer;
-import com.example.orderapi.domain.CustomerTier;
-import com.example.orderapi.domain.Order;
-import com.example.orderapi.domain.OrderStatus;
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Customer;
+import com.example.orderapi.model.CustomerTier;
+import com.example.orderapi.model.Order;
+import com.example.orderapi.model.OrderStatus;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.dto.CreateOrderItemRequest;
 import com.example.orderapi.dto.CreateOrderRequest;
 import com.example.orderapi.repository.CustomerRepository;

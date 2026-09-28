@@ -1,11 +1,12 @@
 package com.example.orderapi.service;
 
-import com.example.orderapi.domain.Customer;
-import com.example.orderapi.domain.CustomerTier;
-import com.example.orderapi.domain.Order;
-import com.example.orderapi.domain.OrderItem;
-import com.example.orderapi.domain.OrderStatus;
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.exception.InsufficientStockException;
+import com.example.orderapi.model.Customer;
+import com.example.orderapi.model.CustomerTier;
+import com.example.orderapi.model.Order;
+import com.example.orderapi.model.OrderItem;
+import com.example.orderapi.model.OrderStatus;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.dto.CreateOrderItemRequest;
 import com.example.orderapi.dto.CreateOrderRequest;
 import com.example.orderapi.dto.OrderItemResponse;
@@ -48,11 +49,18 @@ public class OrderService {
         Customer customer = customerService.getCustomer(request.getCustomerId());
 
         Order order = new Order(nextOrderNumber(), customer);
-        order.setStatus(OrderStatus.PENDING);
+//        order.setStatus(OrderStatus.PENDING);
 
         for (CreateOrderItemRequest line : request.getItems()) {
+
             Product product = productService.getProduct(line.getProductId());
-            order.addItem(new OrderItem(product, line.getQuantity(), product.getUnitPrice()));
+            int available = product.getStockQuantity();
+            int itemsAskedFor = line.getQuantity();
+
+            if(available < itemsAskedFor) {
+                throw new InsufficientStockException("Insufficient stock", available, itemsAskedFor );
+            }
+            order.addItem(new OrderItem(product, itemsAskedFor, product.getUnitPrice()));
         }
 
         applyTotals(order, customer);
@@ -112,18 +120,11 @@ public class OrderService {
     }
 
     private BigDecimal resolveDiscountRate(CustomerTier tier) {
-        BigDecimal rate;
-        switch (tier) {
-            case PLATINUM:
-                rate = DISCOUNT_PLATINUM;
-            case GOLD:
-                rate = DISCOUNT_GOLD;
-                break;
-            default:
-                rate = DISCOUNT_STANDARD;
-                break;
-        }
-        return rate;
+         return switch (tier) {
+            case PLATINUM -> DISCOUNT_PLATINUM;
+            case GOLD -> DISCOUNT_GOLD;
+            default -> DISCOUNT_STANDARD;
+        };
     }
 
     private String nextOrderNumber() {

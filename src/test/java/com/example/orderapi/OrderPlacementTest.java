@@ -1,6 +1,6 @@
 package com.example.orderapi;
 
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -80,7 +80,7 @@ class OrderPlacementTest extends IntegrationTestSupport {
                         .contentType(contentType())
                         .content(orderPayload(customerId, webcam.getId(), -5)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("quantity")));
+                .andExpect(content().string("Quantity cannot be less than zero"));
 
         int stockAfter = productRepository.findById(webcam.getId()).orElseThrow().getStockQuantity();
         assertThat(stockAfter)

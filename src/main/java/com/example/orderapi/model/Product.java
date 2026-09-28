@@ -1,4 +1,4 @@
-package com.example.orderapi.domain;
+package com.example.orderapi.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

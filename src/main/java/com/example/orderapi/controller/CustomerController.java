@@ -1,4 +1,4 @@
-package com.example.orderapi.web;
+package com.example.orderapi.controller;
 
 import com.example.orderapi.dto.CustomerResponse;
 import com.example.orderapi.dto.OrderSummaryResponse;

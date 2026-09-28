@@ -1,8 +1,8 @@
 package com.example.orderapi;
 
-import com.example.orderapi.domain.Customer;
-import com.example.orderapi.domain.CustomerTier;
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Customer;
+import com.example.orderapi.model.CustomerTier;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.dto.CreateOrderItemRequest;
 import com.example.orderapi.dto.CreateOrderRequest;
 import com.example.orderapi.service.OrderService;

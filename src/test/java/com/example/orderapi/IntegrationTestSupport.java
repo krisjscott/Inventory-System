@@ -1,6 +1,6 @@
 package com.example.orderapi;
 
-import com.example.orderapi.domain.Product;
+import com.example.orderapi.model.Product;
 import com.example.orderapi.repository.CustomerRepository;
 import com.example.orderapi.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;

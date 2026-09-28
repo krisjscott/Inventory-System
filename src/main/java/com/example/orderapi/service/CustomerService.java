@@ -1,6 +1,6 @@
 package com.example.orderapi.service;
 
-import com.example.orderapi.domain.Customer;
+import com.example.orderapi.model.Customer;
 import com.example.orderapi.dto.CustomerResponse;
 import com.example.orderapi.exception.ResourceNotFoundException;
 import com.example.orderapi.repository.CustomerRepository;

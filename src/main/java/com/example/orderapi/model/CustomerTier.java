@@ -1,4 +1,4 @@
-package com.example.orderapi.domain;
+package com.example.orderapi.model;
 
 public enum CustomerTier {
     STANDARD,
