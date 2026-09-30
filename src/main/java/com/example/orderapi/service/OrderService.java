@@ -14,6 +14,7 @@ import com.example.orderapi.dto.OrderResponse;
 import com.example.orderapi.dto.OrderSummaryResponse;
 import com.example.orderapi.exception.ResourceNotFoundException;
 import com.example.orderapi.repository.OrderRepository;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +76,7 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    @BatchSize(size = 20)
     public OrderResponse getOrder(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", id));
