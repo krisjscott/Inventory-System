@@ -18,12 +18,12 @@ The Vite server proxies API and OAuth routes to `http://localhost:8080`. No fron
 Use `frontend` as Vercel's Root Directory, `npm run build` as the build command, and `dist` as the output directory. Set this Vercel Production environment variable to the backend origin (no trailing slash and no `/api` path):
 
 ```text
-VITE_API_BASE_URL=https://your-backend-host.example.com
+VITE_API_BASE_URL=https://inventory-system-cera.onrender.com
 ```
 
-The [`.env.production.example`](.env.production.example) file is a template. Replace its example origin when the backend host is decided. Alternatively, add `VITE_API_BASE_URL` directly in Vercel's project settings. The actual backend URL is intentionally not guessed.
+The [`.env.production.example`](.env.production.example) file is a template. Set `VITE_API_BASE_URL` in Vercel's Production settings to the Render service origin above.
 
-The API client sends cookies for session authentication and CSRF-protected writes. The backend must allow credentialed CORS requests from the Vercel deployment origin and use cross-site session cookies (`SameSite=None; Secure`) when the two hosts are on different sites. Google OAuth redirects to the backend origin, so register the backend's callback URL with Google. Do not store secrets in `VITE_` variables; they are public in the built frontend.
+The API client sends cookies for session authentication and CSRF-protected writes. The backend must allow credentialed CORS requests from the Vercel deployment origin and use cross-site session cookies (`SameSite=None; Secure`) when the two hosts are on different sites. Google OAuth returns to the backend callback, then redirects back to Vercel. Do not store secrets in `VITE_` variables; they are public in the built frontend.
 
 ## Project structure
 

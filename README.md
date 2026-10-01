@@ -28,9 +28,9 @@ Create a Vercel project with `frontend` as its Root Directory. Use:
 - Output directory: `dist`
 - Framework preset: Vite
 
-Add `VITE_API_BASE_URL` as a Vercel Production environment variable, set to the backend origin only (for example, `https://api.example.com`, with no `/api` suffix). The backend host has not been selected yet, so this value must be supplied before production deployment. See [`frontend/.env.production.example`](frontend/.env.production.example).
+Add `VITE_API_BASE_URL` as a Vercel Production environment variable, set to the backend origin only (currently `https://inventory-system-cera.onrender.com`, with no `/api` suffix). See [`frontend/.env.production.example`](frontend/.env.production.example).
 
-The backend must allow credentialed CORS requests from the deployed Vercel origin, use cross-site session cookies (`SameSite=None; Secure`) if the hosts are on different sites, and configure Google OAuth's authorized redirect URI on the backend host. `VITE_` variables are bundled into public browser code: never put OAuth client secrets, database credentials, or other secrets in them. Keep secrets in the backend's environment.
+The backend allows credentialed API requests only from `FRONTEND_URL`, redirects successful Google sign-ins to that URL, and needs cross-site session cookies (`SameSite=None; Secure`) when frontend and backend are on different sites. `VITE_` variables are bundled into public browser code: never put OAuth client secrets, database credentials, or other secrets in them. Keep secrets in the backend's environment.
 
 More frontend details are in [`frontend/README.md`](frontend/README.md).
 
@@ -46,6 +46,9 @@ For the current Neon database setup, configure these Render environment variable
 | `DATABASE_URL` | Neon connection string, stored as a secret |
 | `GOOGLE_OAUTH_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth client secret, stored as a secret |
-| `OAUTH_REDIRECT_URI` | `https://<your-render-service>.onrender.com/login/oauth2/code/google` |
+| `OAUTH_REDIRECT_URI` | `https://inventory-system-cera.onrender.com/login/oauth2/code/google` |
+| `FRONTEND_URL` | `https://inventory-system-kappa-indol.vercel.app` |
+| `SESSION_COOKIE_SAME_SITE` | `none` |
+| `SESSION_COOKIE_SECURE` | `true` |
 
-Add the callback URL above to the Google OAuth client's authorized redirect URIs. Once deployed, set `VITE_API_BASE_URL` in Vercel to the Render service origin (for example, `https://<your-render-service>.onrender.com`). The backend still needs credentialed CORS for the Vercel origin and cross-site session-cookie settings before browser sign-in will work across the two hosts.
+Add the callback URL above to the Google OAuth client's authorized redirect URIs. Set `VITE_API_BASE_URL` in Vercel to `https://inventory-system-cera.onrender.com`. The frontend and backend must use the matching Vercel origin in `FRONTEND_URL` and `VITE_API_BASE_URL` respectively.
