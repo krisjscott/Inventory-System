@@ -1,4 +1,5 @@
 import type { ApiErrorBody } from './types'
+import { backendUrl } from './config'
 
 /**
  * Thrown for any failed API call. `status` is the status the server *intended*
@@ -63,12 +64,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const headers = new Headers(init?.headers)
     if (init?.body) headers.set('Content-Type', 'application/json')
     if (init?.method === 'POST') {
-      const csrfResponse = await fetch('/api/auth/csrf')
+      const csrfResponse = await fetch(backendUrl('/api/auth/csrf'), { credentials: 'include' })
       const csrf = await csrfResponse.json() as { token: string }
       headers.set('X-XSRF-TOKEN', csrf.token)
     }
-    response = await fetch(`/api${path}`, {
+    response = await fetch(backendUrl(`/api${path}`), {
       ...init,
+      credentials: 'include',
       headers,
     })
   } catch {
