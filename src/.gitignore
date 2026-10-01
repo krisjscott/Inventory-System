@@ -1,0 +1,9 @@
+# Neon environment pulls contain database credentials.
+.env
+.env.*
+!.env.example
+
+# Node tooling used to evaluate neon.ts.
+node_modules/
+dist/
+.neon
