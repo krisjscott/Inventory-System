@@ -5,6 +5,7 @@ import com.example.orderapi.dto.ProductResponse;
 import com.example.orderapi.exception.ResourceNotFoundException;
 import com.example.orderapi.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
+    @Transactional
     public Product getProduct(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id));

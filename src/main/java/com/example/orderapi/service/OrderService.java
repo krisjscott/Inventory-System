@@ -46,6 +46,7 @@ public class OrderService {
         this.inventoryService = inventoryService;
     }
 
+    @Transactional //This ensures transaction runs in single database transaction
     public OrderResponse placeOrder(CreateOrderRequest request) {
         Customer customer = customerService.getCustomer(request.getCustomerId());
 
