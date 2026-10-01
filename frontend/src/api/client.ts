@@ -60,11 +60,16 @@ function toApiError(status: number, body: unknown, path: string): ApiError {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response
   try {
+    const headers = new Headers(init?.headers)
+    if (init?.body) headers.set('Content-Type', 'application/json')
+    if (init?.method === 'POST') {
+      const csrfResponse = await fetch('/api/auth/csrf')
+      const csrf = await csrfResponse.json() as { token: string }
+      headers.set('X-XSRF-TOKEN', csrf.token)
+    }
     response = await fetch(`/api${path}`, {
       ...init,
-      headers: init?.body
-        ? { 'Content-Type': 'application/json', ...init.headers }
-        : init?.headers,
+      headers,
     })
   } catch {
     throw new ApiError(

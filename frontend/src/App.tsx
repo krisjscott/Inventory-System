@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { orderApi } from './api/orderApi'
+import { api } from './api/client'
 import { useCart } from './state/cartContext'
 import { CustomerDetailPage, CustomersPage } from './pages/CustomersPage'
 import { NewOrderPage } from './pages/NewOrderPage'
@@ -30,6 +31,14 @@ function useApiStatus() {
 export default function App() {
   const apiStatus = useApiStatus()
   const { unitCount } = useCart()
+  const [user, setUser] = useState<{ email: string; name: string } | null>(null)
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    api.get<{ email: string; name: string }>('/auth/me')
+      .then((value) => { setUser(value); setAuthenticated(true) })
+      .catch(() => setAuthenticated(false))
+  }, [])
 
   return (
     <div className="app">
@@ -57,6 +66,17 @@ export default function App() {
           <span className="cart-chip" title="Units in basket">
             Basket {unitCount}
           </span>
+          {user ? (
+            <>
+              <span className="status-text" title={user.email}>{user.name}</span>
+              <button className="btn btn-ghost" onClick={async () => {
+                await api.post('/auth/logout')
+                window.location.reload()
+              }}>Sign out</button>
+            </>
+          ) : authenticated === false ? (
+            <a className="btn btn-ghost" href="/oauth2/authorization/google">Sign in with Google</a>
+          ) : null}
         </div>
       </header>
 
