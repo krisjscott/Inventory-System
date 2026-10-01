@@ -1,93 +1,105 @@
-import { useEffect, useState } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
-import { orderApi } from './api/orderApi'
-import { api } from './api/client'
-import { useCart } from './state/cartContext'
-import { CustomerDetailPage, CustomersPage } from './pages/CustomersPage'
-import { NewOrderPage } from './pages/NewOrderPage'
-import { OrderDetailPage } from './pages/OrderDetailPage'
-import { OrdersIndexPage } from './pages/OrdersIndexPage'
-import { ProductDetailPage } from './pages/ProductDetailPage'
-import { ProductsPage } from './pages/ProductsPage'
+import { useState } from 'react'
+import { Navigate, NavLink, Route, Routes } from 'react-router-dom'
+import { ArrowUpRight } from 'lucide-react'
+import type { AuthUser } from '@/api/authApi'
+import { backendUrl } from '@/api/config'
+import { LoginPage } from '@/components/auth/LoginPage'
+import { useAuth } from '@/hooks/useAuth'
+import { CustomersPage, CustomerDetailPage } from '@/pages/CustomersPage'
+import { NewOrderPage } from '@/pages/NewOrderPage'
+import { OrderDetailPage } from '@/pages/OrderDetailPage'
+import { OrdersIndexPage } from '@/pages/OrdersIndexPage'
+import { ProductDetailPage } from '@/pages/ProductDetailPage'
+import { ProductsPage } from '@/pages/ProductsPage'
+import { useCart } from '@/state/cartContext'
 
-/** Pings GET /api/products once on mount to confirm the API is reachable. */
-function useApiStatus() {
-  const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+function App() {
+  const auth = useAuth()
 
-  useEffect(() => {
-    let active = true
-    orderApi
-      .listProducts()
-      .then(() => active && setStatus('online'))
-      .catch(() => active && setStatus('offline'))
-    return () => {
-      active = false
-    }
-  }, [])
+  if (auth.state.kind === 'loading') {
+    return (
+      <main className="grid min-h-svh place-items-center bg-background px-6 text-foreground">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground" role="status">
+          <span className="spinner" aria-hidden="true" />
+          Checking workspace access
+        </div>
+      </main>
+    )
+  }
 
-  return status
-}
-
-export default function App() {
-  const apiStatus = useApiStatus()
-  const { unitCount } = useCart()
-  const [user, setUser] = useState<{ email: string; name: string } | null>(null)
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    api.get<{ email: string; name: string }>('/auth/me')
-      .then((value) => { setUser(value); setAuthenticated(true) })
-      .catch(() => setAuthenticated(false))
-  }, [])
+  if (auth.state.kind === 'error' || auth.state.kind === 'signed-out') {
+    return (
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <LoginPage
+              onGoogleSignIn={() => window.location.assign(backendUrl('/oauth2/authorization/google'))}
+              errorMessage={auth.state.kind === 'error' ? auth.state.message : undefined}
+              onRetry={auth.state.kind === 'error' ? auth.retry : undefined}
+            />
+          }
+        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
+  }
 
   return (
-    <div className="app">
+    <Routes>
+      <Route path="/login" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<InventoryApp user={auth.state.user} onSignOut={auth.signOut} />} />
+    </Routes>
+  )
+}
+
+function InventoryApp({ user, onSignOut }: { user: AuthUser; onSignOut: () => Promise<void> }) {
+  const { unitCount } = useCart()
+  const [signOutError, setSignOutError] = useState<string | null>(null)
+
+  async function handleSignOut() {
+    setSignOutError(null)
+    try {
+      await onSignOut()
+    } catch {
+      setSignOutError('Sign out did not complete. Please try again.')
+    }
+  }
+
+  return (
+    <div className="app min-h-screen bg-background text-foreground">
       <header className="topbar">
-        <div className="brand">
-          <span className="logo" aria-hidden="true" />
-          <div>
-            <strong>Inventory System</strong>
-            <small>order-api</small>
+        <div className="topbar-inner">
+          <NavLink className="brand" to="/" aria-label="Stockroom inventory home">
+            <span className="logo" aria-hidden="true">S/</span>
+            <span>
+              <strong>Stockroom</strong>
+              <small>Inventory / System 01</small>
+            </span>
+          </NavLink>
+
+          <nav aria-label="Main navigation">
+            <NavLink to="/" end>Inventory</NavLink>
+            <NavLink to="/customers">Customers</NavLink>
+            <NavLink to="/orders">Orders</NavLink>
+            <NavLink to="/orders/new">New order</NavLink>
+          </nav>
+
+          <div className="topbar-right">
+            <span className="dot dot-online" aria-hidden="true" />
+            <span className="status-text">Live workspace</span>
+            <span className="cart-chip" title="Units in basket">{unitCount} units</span>
+            <span className="status-text hidden max-w-32 truncate md:inline" title={user.email}>{user.name}</span>
+            <button className="btn btn-ghost" type="button" onClick={() => void handleSignOut()}>
+              Sign out <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
           </div>
-        </div>
-
-        <nav>
-          <NavLink to="/products">Products</NavLink>
-          <NavLink to="/customers">Customers</NavLink>
-          <NavLink to="/orders">Orders</NavLink>
-          <NavLink to="/orders/new">New order</NavLink>
-        </nav>
-
-        <div className="topbar-right">
-          <span className={`dot dot-${apiStatus}`} title={`API ${apiStatus}`} />
-          <span className="status-text">
-            {apiStatus === 'checking' ? 'Connecting' : apiStatus === 'online' ? 'API online' : 'API offline'}
-          </span>
-          <span className="cart-chip" title="Units in basket">
-            Basket {unitCount}
-          </span>
-          {user ? (
-            <>
-              <span className="status-text" title={user.email}>{user.name}</span>
-              <button className="btn btn-ghost" onClick={async () => {
-                await api.post('/auth/logout')
-                window.location.reload()
-              }}>Sign out</button>
-            </>
-          ) : authenticated === false ? (
-            <a className="btn btn-ghost" href="/oauth2/authorization/google">Sign in with Google</a>
-          ) : null}
         </div>
       </header>
 
-      {apiStatus === 'offline' && (
-        <div className="banner" role="alert">
-          Cannot reach the order-api on port 8080. Start it with <code>mvn spring-boot:run</code>,
-          then reload. The dev server proxies <code>/api</code> to it.
-        </div>
-      )}
+      {signOutError ? <div className="banner" role="alert">{signOutError}</div> : null}
 
-      <main>
+      <main className="main-stage">
         <Routes>
           <Route path="/" element={<ProductsPage />} />
           <Route path="/products" element={<ProductsPage />} />
@@ -99,7 +111,13 @@ export default function App() {
           <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="*" element={<p className="state">Page not found.</p>} />
         </Routes>
+        <footer className="app-footer">
+          <span>Stockroom / Inventory operations</span>
+          <span>Built for a clearer count</span>
+        </footer>
       </main>
     </div>
   )
 }
+
+export default App
