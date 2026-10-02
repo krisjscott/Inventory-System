@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://inventory-system-cera.onrender.com/api/:path*"
+    },
+    {
+      "source": "/oauth2/:path*",
+      "destination": "https://inventory-system-cera.onrender.com/oauth2/:path*"
+    },
+    {
+      "source": "/login/oauth2/:path*",
+      "destination": "https://inventory-system-cera.onrender.com/login/oauth2/:path*"
+    }
+  ]
+}
